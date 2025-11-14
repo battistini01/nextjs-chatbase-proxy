@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import crypto from "crypto";
+import { notFound } from "next/navigation";
 
 export function proxy(req: NextRequest) {
   const url = req.nextUrl.clone();
@@ -20,7 +21,7 @@ export function proxy(req: NextRequest) {
 
     if (hmac !== expectedHmac) {
       // Non valido → blocca con 401
-      return new NextResponse("Unauthorized", { status: 200 });
+      return NextResponse.json({ message: "Unauthorized" }, { status: 200 });
     }
 
     // HMAC valido → continua verso rewrite (Chatbase)
