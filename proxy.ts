@@ -38,5 +38,6 @@ export function proxy(req: NextRequest) {
 
 // Applica il middleware solo alle route /help/*
 export const config = {
+  trailingSlash: false,
   matcher: ['/help', '/help/:path*'],
 };
