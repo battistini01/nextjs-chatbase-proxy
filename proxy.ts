@@ -30,8 +30,6 @@ export function proxy(req: NextRequest) {
       .update(ordered)
       .digest("hex");
 
-    console.log('Expected HMAC: ' + 'logged_in_customer_id=path_prefix=/apps/helpshop=livestory-app-free.myshopify.comtimestamp=1763132846' + '\n');
-
     if (params.signature !== expectedHmac) {
       // Non valido → blocca con 401
       console.log(`HMAC not valid: Expected: ${expectedHmac}, Received: ${params.signature}`);
@@ -43,8 +41,6 @@ export function proxy(req: NextRequest) {
     return NextResponse.next();
     
   }
-
-  console.log(`Accesso a ${url.pathname} consentito dal middleware.`);
 
   // Per tutte le altre route → ignora
   return NextResponse.next();
