@@ -5,6 +5,8 @@ import crypto from "crypto";
 export function proxy(req: NextRequest) {
   const url = req.nextUrl.clone();
 
+  console.log('PATH: ' + url.pathname)
+
   // Applica solo a /help e sue subroute
   if (url.pathname.startsWith("/help")) {
     console.log(`Middleware attivato per ${url.pathname}`);
@@ -37,6 +39,5 @@ export function proxy(req: NextRequest) {
 
 // Applica il middleware solo alle route /help/*
 export const config = {
-  trailingSlash: true,
   matcher: ['/help', '/help/:path*'],
 };
