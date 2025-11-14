@@ -20,7 +20,7 @@ export function proxy(req: NextRequest) {
 
     if (hmac !== expectedHmac) {
       // Non valido → blocca con 401
-      return new NextResponse("Unauthorized", { status: 401 });
+      return new NextResponse("Unauthorized", { status: 200 });
     }
 
     // HMAC valido → continua verso rewrite (Chatbase)
