@@ -12,22 +12,16 @@ export function proxy(req: NextRequest) {
     const rawQuery = url.search.slice(1);
 
     const params = qs.parse(rawQuery, '&', '=', {
-      decodeURIComponent: (s) => s, // keep %2F, %20, etc.
+      decodeURIComponent: (s) => decodeURIComponent(s), // keep %2F, %20, etc.
     });
-
-    const signature = params.signature as string;
-    delete params.signature;
 
     console.log('\n Received searchParams: ' + url.searchParams.toString() + '\n');
 
     const ordered = Object.keys(params)
+      .filter((key) => key !== 'signature')
       .sort()
       .map((key) => `${key}=${params[key]}`)
-      .join("&");
-
-    const message = qs.stringify(params);
-
-    console.log('Message for HMAC: ' + message + '\n');
+      .join('');
 
     console.log('Ordered params for HMAC: ' + ordered + '\n');
 
@@ -36,13 +30,15 @@ export function proxy(req: NextRequest) {
       .update(ordered)
       .digest("hex");
 
-    if (signature !== expectedHmac) {
+    console.log('Expected HMAC: ' + 'logged_in_customer_id=path_prefix=/apps/helpshop=livestory-app-free.myshopify.comtimestamp=1763132846' + '\n');
+
+    if (params.signature !== expectedHmac) {
       // Non valido → blocca con 401
-      console.log(`HMAC not valid: Expected: ${expectedHmac}, Received: ${signature}`);
+      console.log(`HMAC not valid: Expected: ${expectedHmac}, Received: ${params.signature}`);
       return NextResponse.json({ message: "Unauthorized: Invalid signature" }, { status: 200 });
     }
 
-    console.log(`HMAC valid! Continuing proxy to chatbase.co.`);
+    console.log(`Valid HMAC: proxying to chatbase.co.`);
     // HMAC valido → continua verso rewrite (Chatbase)
     return NextResponse.next();
     
