@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import crypto from "crypto";
-import { notFound } from "next/navigation";
 
 export function proxy(req: NextRequest) {
   const url = req.nextUrl.clone();
@@ -38,6 +37,6 @@ export function proxy(req: NextRequest) {
 
 // Applica il middleware solo alle route /help/*
 export const config = {
-  trailingSlash: false,
+  trailingSlash: true,
   matcher: ['/help', '/help/:path*'],
 };
