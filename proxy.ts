@@ -6,10 +6,9 @@ import { notFound } from "next/navigation";
 export function proxy(req: NextRequest) {
   const url = req.nextUrl.clone();
 
-  console.log(`Middleware attivato per ${url.pathname}`);
-
   // Applica solo a /help e sue subroute
   if (url.pathname.startsWith("/help")) {
+    console.log(`Middleware attivato per ${url.pathname}`);
     const hmac = req.headers.get("hmac"); // esempio header custom
 
     // Calcola HMAC atteso
@@ -21,9 +20,11 @@ export function proxy(req: NextRequest) {
 
     if (hmac !== expectedHmac) {
       // Non valido → blocca con 401
+      console.log(`HMAC non valido per ${url.pathname}. Atteso: ${expectedHmac}, Ricevuto: ${hmac}`);
       return NextResponse.json({ message: "Unauthorized" }, { status: 200 });
     }
 
+    console.log(`HMAC valido per ${url.pathname}.`);
     // HMAC valido → continua verso rewrite (Chatbase)
     return NextResponse.next();
     
