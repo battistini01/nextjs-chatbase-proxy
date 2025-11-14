@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   trailingSlash: true,
   /* config options here */
-  allowedDevOrigins: ['local-origin.dev', '*.local-origin.dev', 'https://eed2d50e7a37.ngrok-free.app'],
+  allowedDevOrigins: ['local-origin.dev', '*.local-origin.dev'],
   async rewrites() {
     return [
       {
