@@ -1,31 +1,48 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import crypto from "crypto";
+import qs from 'node:querystring';
 
 export function proxy(req: NextRequest) {
   const url = req.nextUrl.clone();
 
-  console.log('PATH: ' + url.pathname)
-
-  // Applica solo a /help e sue subroute
   if (url.pathname.startsWith("/help")) {
     console.log(`Middleware attivato per ${url.pathname}`);
-    const hmac = req.headers.get("hmac"); // esempio header custom
 
-    // Calcola HMAC atteso
-    const secret = process.env.SHOPIFY_SECRET || "";
+    const rawQuery = url.search.slice(1);
+
+    const params = qs.parse(rawQuery, '&', '=', {
+      decodeURIComponent: (s) => s, // keep %2F, %20, etc.
+    });
+
+    const signature = params.signature as string;
+    delete params.signature;
+
+    console.log('\n Received searchParams: ' + url.searchParams.toString() + '\n');
+
+    const ordered = Object.keys(params)
+      .sort()
+      .map((key) => `${key}=${params[key]}`)
+      .join("&");
+
+    const message = qs.stringify(params);
+
+    console.log('Message for HMAC: ' + message + '\n');
+
+    console.log('Ordered params for HMAC: ' + ordered + '\n');
+
     const expectedHmac = crypto
-      .createHmac("sha256", secret)
-      .update(url.searchParams.toString())
+      .createHmac("sha256", process.env.SHOPIFY_SECRET!)
+      .update(ordered)
       .digest("hex");
 
-    if (hmac !== expectedHmac) {
+    if (signature !== expectedHmac) {
       // Non valido → blocca con 401
-      console.log(`HMAC non valido per ${url.pathname}. Atteso: ${expectedHmac}, Ricevuto: ${hmac}`);
-      return NextResponse.json({ message: "Unauthorized" }, { status: 200 });
+      console.log(`HMAC not valid: Expected: ${expectedHmac}, Received: ${signature}`);
+      return NextResponse.json({ message: "Unauthorized: Invalid signature" }, { status: 200 });
     }
 
-    console.log(`HMAC valido per ${url.pathname}.`);
+    console.log(`HMAC valid! Continuing proxy to chatbase.co.`);
     // HMAC valido → continua verso rewrite (Chatbase)
     return NextResponse.next();
     
