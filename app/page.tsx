@@ -18,7 +18,7 @@ export default function Home() {
           </h1>
           <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
             Valid requests are tested against your store secret and forwarded to
-            your Chagebase AI Agent for processing.
+            your AI Agent for processing.
           </p>
         </div>
         <div className="flex flex-col gap-1 text-base font-medium sm:flex-row">
